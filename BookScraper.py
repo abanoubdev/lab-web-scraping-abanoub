@@ -7,7 +7,6 @@ class BookScraper:
     def __init__(self):
         self.base_url = "https://books.toscrape.com/"
         self.catalogue_url = "https://books.toscrape.com/catalogue/"
-        # Start at the main catalogue index
         self.start_url = "https://books.toscrape.com/catalogue/page-1.html"
         self.rating_map = {
             "One": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5
@@ -66,12 +65,9 @@ class BookScraper:
             articles = soup.find_all('article', class_='product_pod')
 
             for article in articles:
-                # 1. Extract Rating
                 rating_tag = article.find('p', class_='star-rating')
                 rating_class = rating_tag['class'][1] if rating_tag else "Zero"
                 rating_val = self.rating_map.get(rating_class, 0)
-
-                # 2. Extract Price
                 price_tag = article.find('p', class_='price_color')
                 price_text = price_tag.text if price_tag else "£0"
                 price_val = float(price_text.replace('£', ''))
@@ -85,10 +81,7 @@ class BookScraper:
                     if link_tag:
                         title = link_tag.get('title', link_tag.text)
                         relative_link = link_tag['href']
-
-                        # Fetch detail page data
                         details = self._get_book_details(relative_link)
-
                         if details:
                             books_data.append({
                                 "UPC": details['upc'],
@@ -104,4 +97,4 @@ class BookScraper:
 
         except Exception as e:
             print(f"Critical error during main scrape: {e}")
-            return pd.DataFrame()  # Return empty DF so the main script doesn't crash
+            return pd.DataFrame()
